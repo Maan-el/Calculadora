@@ -27,10 +27,8 @@ typedef struct tree {
   node_t *raiz;
 } tree_t;
 
-void create();
+tree_t create();
 
-void insert();
-
-void find();
+void insert(tree_t *tree);
 
 #endif // TREE_H_

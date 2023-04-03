@@ -9,7 +9,7 @@ input="src/main.c"
 # V3 só foi habilitada "universalmente" recentemente, então vou usar só o V2
 x86_optimization="-march=x86-64-v2"
 
-fedora_fags=(
+fedora_flags=(
     "-O2"
     "-flto=auto"
     "-ffat-lto-objects"
