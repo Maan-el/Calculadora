@@ -29,7 +29,8 @@ enum token tokenizer(char c) {
     return OPERATION_MULT;
   case '/':
     return OPERATION_DIV;
-  case ' ' | '\t':
+  case ' ':
+  case '\t':
     return SPACE;
   case '\n':
     return NEW_LINE;
