@@ -1,73 +1,57 @@
-/* #include "reader.h" */
-
-#include "custom_types.h"
+#include "tree.h"
+#include <ctype.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-static unsigned long int line = 0;
+static inline void clear_string(char *str) {
+  str = memset(str, '\0', sizeof(*str));
+} // Garantindo que a string é nula
 
-enum token tokenizer(char c) {
-  switch (c) {
-  case '0':
-  case '1':
-  case '2':
-  case '3':
-  case '4':
-  case '5':
-  case '6':
-  case '7':
-  case '8':
-  case '9':
-    return NUMBER;
-  case '.':
-    return DOT;
-  case '+':
-    return OPERATION_SUM;
-  case '-':
-    return OPERATION_MINUS;
-  case '*':
-    return OPERATION_MULT;
-  case '/':
-    return OPERATION_DIV;
-  case ' ':
-  case '\t':
-    return SPACE;
-  case '\n':
-    return NEW_LINE;
-  default:
-    return UNKNOWN;
-  }
-}
+tree_t __attribute__((__pure__)) reader(const char str[]) {
+  char numero[500] = {'\0'};
+  uint32_t line = 1;
+  tree_t tree = {.situacao = OK}, err_tree = {.situacao = ERR};
 
-void reader(char *str) {
-  char numero[350];
-
-  for (unsigned int i = 0; str[i] != '\0'; i++) {
-    switch (tokenizer(str[i])) {
-    case NUMBER:
+  for (size_t i = 0; str[i] != '\0'; i++) {
+    switch (str[i]) {
+    case '.':
+    case '0' ... '9': // gnu extension
       strcat(numero, &str[i]);
+      while (isalnum(str[i + 1]) || str[i + 1] == '.') {
+        strcat(numero, &str[i + 1]);
+        i++;
+      }
+      tree_insert(&tree, numero, NUMBER);
+      clear_string(numero);
       break;
-    case DOT:
-      strcat(numero, &str[i]);
+    case '+':
+      tree_insert(&tree, 0, OPERATION_SUM);
       break;
-    case OPERATION_SUM:
+    case '-':
+      tree_insert(&tree, 0, OPERATION_MINUS);
       break;
-    case OPERATION_MINUS:
+    case '*':
+      tree_insert(&tree, 0, OPERATION_MULT);
       break;
-    case OPERATION_MULT:
+    case '/':
+      tree_insert(&tree, 0, OPERATION_DIV);
       break;
-    case OPERATION_DIV:
+    case '^':
+      tree_insert(&tree, 0, OPERATION_POW);
       break;
-    case SPACE:
-      break;
-    case NEW_LINE:
+    case '\n':
       line++;
       break;
-    /* TODO add error handling */
-    case UNKNOWN:
-      fprintf(stderr, "Input não reconhecido:  %c  \( %d ) na linha:  %lu\n",
-              str[i], i, line);
-      return;
+    case ' ':
+    case '\t':
+      break;
+    default:
+      printf("(linha:%d letra:%zu) Caracter desconhecido: %c", line, i, str[i]);
+      // free_tree(&tree);
+      return err_tree;
     }
   }
+  return tree;
 }
