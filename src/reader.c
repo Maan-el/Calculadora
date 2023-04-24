@@ -1,18 +1,16 @@
 #include "tree.h"
 #include <ctype.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-static inline void clear_string(char *str) {
-  str = memset(str, '\0', sizeof(*str));
-} // Garantindo que a string é nula
-
-tree_t __attribute__((__pure__)) reader(const char str[]) {
+tree_t reader(const char str[]) {
+  // char numero[500] = {};  /* C23 */
   char numero[500] = {'\0'};
-  uint32_t line = 1;
-  tree_t tree = {.situacao = OK}, err_tree = {.situacao = ERR};
+  uint32_t line = 1, key = 1;
+  tree_t tree;
 
   for (size_t i = 0; str[i] != '\0'; i++) {
     switch (str[i]) {
@@ -24,22 +22,22 @@ tree_t __attribute__((__pure__)) reader(const char str[]) {
         i++;
       }
       tree_insert(&tree, numero, NUMBER);
-      clear_string(numero);
+      memset(numero, '\0', strlen(numero));
       break;
     case '+':
-      tree_insert(&tree, 0, OPERATION_SUM);
+      tree_insert(&tree, 0, SUM);
       break;
     case '-':
-      tree_insert(&tree, 0, OPERATION_MINUS);
+      tree_insert(&tree, 0, MINUS);
       break;
     case '*':
-      tree_insert(&tree, 0, OPERATION_MULT);
+      tree_insert(&tree, 0, MULT);
       break;
     case '/':
-      tree_insert(&tree, 0, OPERATION_DIV);
+      tree_insert(&tree, 0, DIV);
       break;
     case '^':
-      tree_insert(&tree, 0, OPERATION_POW);
+      tree_insert(&tree, 0, POW);
       break;
     case '\n':
       line++;
@@ -49,9 +47,23 @@ tree_t __attribute__((__pure__)) reader(const char str[]) {
       break;
     default:
       printf("(linha:%d letra:%zu) Caracter desconhecido: %c", line, i, str[i]);
-      // free_tree(&tree);
-      return err_tree;
+      // TODO free_tree(&tree.raiz);
+      tree.situacao = ERR;
+      return tree;
     }
   }
+  tree.situacao = OK;
   return tree;
 }
+
+node_t aaa() { return (node_t){.left = NULL, .right = NULL, .valor = 0}; }
+
+struct {
+  int a;
+  int b;
+} foo() {
+  typeof(foo()) st = {.a = 2, .b = 3};
+  return st;
+}
+
+void bar() { typeof(foo()) z = foo(); }

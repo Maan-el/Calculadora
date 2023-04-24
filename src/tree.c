@@ -1,34 +1,10 @@
 #include "tree.h"
 #include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
-#include <sys/cdefs.h>
-
-// Essa função recebe a árvore de operações, o token com a operação e uma string
-// _opcional_, que será o valor do número, caso contrário é ignorada
-__attribute_nonnull__((1, 2)) void tree_insert(tree_t *tree, const char *num,
-                                               const token_t token) {
-
-  switch (token) {
-  case NUMBER:
-
-  case OPERATION_SUM:
-  case OPERATION_MINUS:
-  case OPERATION_MULT:
-  case OPERATION_DIV:
-  case OPERATION_POW:
-  default:
-    break;
-  }
-}
-
-static inline void insert(tree_t *tree, const tipo_valor_t tipo,
-                          const char val[]) {
-  switch (tipo) {
-  case NUM_INT:
-  case NUM_DOUBLE:
-  case OPERACAO:
-  }
-}
+#include <string.h>
 
 static node_t *new_node(void) {
   node_t *node = NULL;
@@ -38,7 +14,52 @@ static node_t *new_node(void) {
   while (node == NULL) {
     node = calloc(1, sizeof(node_t));
   }
-  node->filhos[0] = NULL;
-  node->filhos[1] = NULL;
+  node->left = NULL;
+  node->right = NULL;
   return node;
+}
+
+// Essa função recebe a árvore de operações, o token com a operação e uma string
+// _opcional_, que será o valor do número, caso contrário é ignorada
+void tree_insert(tree_t *tree, const char num[], const token_t token) {
+  uint64_t len = 0;
+  node_t no;
+
+  switch (token) {
+  case NUMBER:
+    // TODO Fazer um wrapper para conseguir compatibilidade com plataformas
+    // 32-bits
+    len = strlen(num);
+    if (atol(num) != 0 || (num[0] == '0' && len == 1)) {
+      no.valor.int_val = atol(num);
+      no.valor.tipo = INT;
+      break;
+    } else {
+      no.valor.int_val = atof(num);
+      no.valor.tipo = DOUBLE;
+      break;
+    }
+  case SUM:
+    no.valor.tipo = OPERACAO;
+    no.valor.opr_val = token;
+    break;
+  case MINUS:
+    no.valor.tipo = OPERACAO;
+    no.valor.opr_val = token;
+    break;
+  case MULT:
+    no.valor.tipo = OPERACAO;
+    no.valor.opr_val = token;
+    break;
+  case DIV:
+    no.valor.tipo = OPERACAO;
+    no.valor.opr_val = token;
+    break;
+  case POW:
+    no.valor.tipo = OPERACAO;
+    no.valor.opr_val = token;
+    break;
+  default:
+    break;
+  }
 }
