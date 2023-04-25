@@ -1,4 +1,4 @@
-#include "tree.h"
+#include "include/tree.h"
 #include <ctype.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -46,7 +46,8 @@ tree_t reader(const char str[]) {
     case '\t':
       break;
     default:
-      printf("(linha:%d letra:%zu) Caracter desconhecido: %c", line, i, str[i]);
+      fprintf(stderr, "(linha:%d letra:%zu) Caracter desconhecido: %c", line, i,
+              str[i]);
       // TODO free_tree(&tree.raiz);
       tree.situacao = ERR;
       return tree;
@@ -55,15 +56,3 @@ tree_t reader(const char str[]) {
   tree.situacao = OK;
   return tree;
 }
-
-node_t aaa() { return (node_t){.left = NULL, .right = NULL, .valor = 0}; }
-
-struct {
-  int a;
-  int b;
-} foo() {
-  typeof(foo()) st = {.a = 2, .b = 3};
-  return st;
-}
-
-void bar() { typeof(foo()) z = foo(); }

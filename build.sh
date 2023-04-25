@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 
-compiler_linux64="gcc"
-compiler_windows64="x86_64-w64-mingw32-gcc"
-compiler_windows32="i686-w64-mingw32-gcc"
+# x86 usará o nível de optimização 2, pois o 3 só foi habilitado universalmente recentemente 
+compiler_linux64="clang -target x86_64-v2-pc-linux-gnu -fuse-ld=lld "
+compiler_linux32="clang -target i386-pc-linux-gnu -fuse-ld=lld "
+compiler_windows64="clang -target x86_64-v2-pc-win32 -fuse-ld=lld "
+compiler_windows32="clang -target i386-pc-win32 -fuse-ld=lld "
 
-input="src/main.c"
-
-# V3 só foi habilitada "universalmente" recentemente, então vou usar só o V2
-x86_optimization="-march=x86-64-v2"
+input="src/main.c src/tree.c src/reader.c"
 
 fedora_flags=(
     "-O2"
@@ -34,11 +33,15 @@ fedora_flags=(
 flags=(
     "-Wall"
     "-Wextra"
-    "-fanalyzer"
-    "-std=c2x"
+    "--analyze"
+    "-Xanalyzer" # Clang flag
+    "-analyzer-output=text" # Clang flag
+    # "-fanalyzer"  # GCC flag
+    "-std=gnu17"
     "-pedantic"
     "-O2"
     "-D_FORTIFY_SOURCE=3"
+    "-fwrapv"
     "-Wl,-z,relro,-z,now"
     "-ggdb3"
     "-Wshadow"
@@ -60,6 +63,9 @@ flags=(
     "-Wno-unused-parameter"
 )
 
-"$compiler_linux64" "$x86_optimization" "${flags[@]}" -o build/calculadora_linux64 "$input"
-"$compiler_windows64" "$x86_optimization" "${flags[@]}" -o build/calculadora_win64 "$input"
-"$compiler_windows32" "${flags[@]}" -o build/calculadora_win32 "$input"
+$compiler_linux64 "${flags[@]}" -o build/calculadora_linux64 $input
+# "$compiler_linux32" "${flags[@]}" -o build/calculadora_linux32 "$input"
+
+# Preciso conseguir as bibliotecas do Windows para fazer essa compilação
+# "$compiler_windows64" "${flags[@]}" -o build/calculadora_win64 "$input"
+# "$compiler_windows32" "${flags[@]}" -o build/calculadora_win32 "$input"
